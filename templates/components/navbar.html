@@ -22,6 +22,28 @@
                 <a class="nav-link" href="#colecciones">Colecciones</a>
                 <a class="nav-link" href="#marketplace">Marketplace</a>
                 <a class="nav-link" href="#comunidad">Comunidad</a>
-                <a class="nav-cta" href="#archivo">Explorar archivo</a>
+                <a class="nav-cta" href="#archivo">
+                    <img class="pixel-icon" src="{{ url_for('static', filename='img/ui/cofre.svg') }}" alt="">
+                    Explorar archivo
+                </a>
+
+                <div class="nav-auth">
+                    {% if current_user.is_authenticated %}
+                    <span class="auth-hello">▶ {{ current_user.nombre }}</span>
+                    <a class="auth-button auth-login" href="{{ url_for('signout') }}">
+                        <img class="pixel-icon" src="{{ url_for('static', filename='img/ui/salir.svg') }}" alt="">
+                        Cerrar sesión
+                    </a>
+                    {% else %}
+                    <button class="auth-button auth-login" type="button" data-modal-open="loginModal">
+                        <img class="pixel-icon" src="{{ url_for('static', filename='img/ui/usuario.svg') }}" alt="">
+                        Iniciar sesión
+                    </button>
+                    <button class="auth-button auth-register" type="button" data-modal-open="registerModal">
+                        <img class="pixel-icon" src="{{ url_for('static', filename='img/ui/usuario-mas.svg') }}" alt="">
+                        Registrarse
+                    </button>
+                    {% endif %}
+                </div>
             </div>
         </nav>

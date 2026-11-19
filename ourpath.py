@@ -5,10 +5,16 @@ from config import config
 from werkzeug.security import generate_password_hash
 from models.entities.User import User
 from models.ModelUser import ModelUser
+from jinja2 import ChoiceLoader, FileSystemLoader
+import os
 
 
 ourpathApp = Flask(__name__)
 ourpathApp.config.from_object(config['development'])
+ourpathApp.jinja_loader = ChoiceLoader([
+    FileSystemLoader(os.path.join(ourpathApp.root_path, 'templates', 'components', 'html')),
+    FileSystemLoader(os.path.join(ourpathApp.root_path, 'templates'))
+])
 db         = MySQL(ourpathApp) 
 adminUsuarios = LoginManager(ourpathApp)
 
@@ -33,6 +39,7 @@ def signup():
         db.connection.commit()
         regUsuario.close()
         return redirect(url_for('home'))
+     return render_template('home.html')
 
 
 
@@ -50,12 +57,12 @@ def signin():
                     return redirect (url_for('home_user'))
             else:
                 flash('Contraseña Incorrecta')
-                redirect(url_for('home'))
+                return redirect(url_for('home'))
         else:
             flash('Usuario inexistente')
-            redirect(url_for('home'))
+            return redirect(url_for('home'))
     else:
-        render_template('home.html')   
+        return render_template('home.html')
 
 @ourpathApp.route('/signout', methods=['GET','POST'])
 def signout():

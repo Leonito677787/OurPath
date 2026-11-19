@@ -4,7 +4,7 @@
     <div class="comtainer">
         {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                    {for m in messages %}
+                    {% for m in messages %}
                         <div class="alert alert-danger" role="alert">
                             {{m}}
                         </div>

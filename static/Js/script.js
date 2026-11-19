@@ -1,5 +1,64 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    const reduceMotion =
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+
+    /* =========================================
+       PANTALLA DE ARRANQUE
+    ========================================= */
+
+    const bootScreen = document.getElementById("bootScreen");
+
+    if (bootScreen) {
+
+        if (reduceMotion || sessionStorageGet("opBooted")) {
+            bootScreen.classList.add("done");
+        } else {
+            setTimeout(() => bootScreen.classList.add("done"), 2200);
+            sessionStorageSet("opBooted", "1");
+        }
+    }
+
+    function sessionStorageGet(key) {
+        try {
+            return sessionStorage.getItem(key);
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function sessionStorageSet(key, value) {
+        try {
+            sessionStorage.setItem(key, value);
+        } catch (error) {
+            return;
+        }
+    }
+
+
+    /* =========================================
+       AVISO RETRO (reemplaza los alert)
+    ========================================= */
+
+    const toast = document.getElementById("konamiToast");
+    let toastTimer;
+
+    function showToast(title, text) {
+
+        if (!toast) {
+            return;
+        }
+
+        toast.querySelector("span").textContent = title;
+        toast.querySelector("small").textContent = text;
+        toast.classList.add("show");
+
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
+    }
+
+
     /* =========================================
        MENÚ RESPONSIVO
     ========================================= */
@@ -8,289 +67,200 @@ document.addEventListener("DOMContentLoaded", () => {
     const navMenu = document.querySelector(".nav-menu");
 
     if (menuToggle && navMenu) {
+
         menuToggle.addEventListener("click", () => {
             const isOpen = navMenu.classList.toggle("open");
-
-            menuToggle.setAttribute("aria-expanded", isOpen);
-            menuToggle.setAttribute(
-                "aria-label",
-                isOpen ? "Cerrar menú" : "Abrir menú"
-            );
+            menuToggle.setAttribute("aria-expanded", String(isOpen));
         });
 
-        // Cerrar menú al seleccionar una opción
-        const navLinks = navMenu.querySelectorAll("a");
-
-        navLinks.forEach(link => {
+        navMenu.querySelectorAll("a").forEach(link => {
             link.addEventListener("click", () => {
                 navMenu.classList.remove("open");
                 menuToggle.setAttribute("aria-expanded", "false");
-                menuToggle.setAttribute("aria-label", "Abrir menú");
             });
         });
     }
 
 
     /* =========================================
-       NAVEGACIÓN SUAVE
-    ========================================= */
-
-    const links = document.querySelectorAll('a[href^="#"]');
-
-    links.forEach(link => {
-        link.addEventListener("click", event => {
-
-            const targetId = link.getAttribute("href");
-
-            if (!targetId || targetId === "#") {
-                return;
-            }
-
-            const target = document.querySelector(targetId);
-
-            if (target) {
-                event.preventDefault();
-
-                target.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-            }
-        });
-    });
-
-
-    /* =========================================
-       CAMBIO DE ENLACE ACTIVO EN EL MENÚ
+       LINK ACTIVO SEGÚN LA SECCIÓN
     ========================================= */
 
     const sections = document.querySelectorAll("section[id]");
-    const navigationLinks = document.querySelectorAll(".nav-link");
+    const navigationLinks = document.querySelectorAll('.nav-link[href^="#"]');
 
-    const sectionObserver = new IntersectionObserver(
-        entries => {
+    if ("IntersectionObserver" in window && sections.length) {
+
+        const sectionObserver = new IntersectionObserver(entries => {
+
             entries.forEach(entry => {
 
-                if (entry.isIntersecting) {
+                if (!entry.isIntersecting) {
+                    return;
+                }
 
-                    navigationLinks.forEach(link => {
-                        link.classList.remove("active");
-                    });
+                navigationLinks.forEach(link => link.classList.remove("active"));
 
-                    const activeLink = document.querySelector(
-                        `.nav-link[href="#${entry.target.id}"]`
-                    );
+                const activeLink = document.querySelector(
+                    `.nav-link[href="#${entry.target.id}"]`
+                );
 
-                    if (activeLink) {
-                        activeLink.classList.add("active");
-                    }
+                if (activeLink) {
+                    activeLink.classList.add("active");
                 }
             });
-        },
-        {
-            threshold: 0.25
-        }
-    );
+        }, { rootMargin: "-45% 0px -50% 0px" });
 
-    sections.forEach(section => {
-        sectionObserver.observe(section);
+        sections.forEach(section => sectionObserver.observe(section));
+
+        window.addEventListener("scroll", () => {
+            if (window.scrollY < 200) {
+                navigationLinks.forEach(link => link.classList.remove("active"));
+                const homeLink = document.querySelector('.nav-link[href="#inicio"]');
+                if (homeLink) {
+                    homeLink.classList.add("active");
+                }
+            }
+        }, { passive: true });
+    }
+
+
+    /* =========================================
+       HEADER AL HACER SCROLL
+    ========================================= */
+
+    const header = document.querySelector(".site-header");
+
+    if (header) {
+
+        window.addEventListener("scroll", () => {
+            header.classList.toggle("scrolled", window.scrollY > 50);
+        }, { passive: true });
+    }
+
+
+    /* =========================================
+       PIXELES FLOTANTES
+    ========================================= */
+
+    const pixelColors = ["#8b3dff", "#b98cff", "#52e5ff", "#39ff88", "#ff4f8b"];
+
+    document.querySelectorAll(".pixel-sky").forEach(sky => {
+
+        const total = Number(sky.dataset.pixels) || 30;
+
+        for (let i = 0; i < total; i++) {
+
+            const pixel = document.createElement("span");
+            const size = [4, 6, 8, 10][Math.floor(Math.random() * 4)];
+
+            pixel.className = "sky-pixel";
+            pixel.style.setProperty("--x", `${Math.random() * 100}%`);
+            pixel.style.setProperty("--y", `${Math.random() * 100}%`);
+            pixel.style.setProperty("--s", `${size}px`);
+            pixel.style.setProperty("--c", pixelColors[Math.floor(Math.random() * pixelColors.length)]);
+            pixel.style.setProperty("--d", `${4 + Math.random() * 6}s`);
+            pixel.style.setProperty("--delay", `${Math.random() * -8}s`);
+
+            sky.appendChild(pixel);
+        }
     });
 
 
     /* =========================================
-       TIMELINE / HISTORIA
+       EFECTO MÁQUINA DE ESCRIBIR
     ========================================= */
 
-    const timelineItems = document.querySelectorAll(".timeline-item");
+    document.querySelectorAll(".typewriter").forEach(element => {
 
-    timelineItems.forEach(item => {
+        const text = element.dataset.type || element.textContent;
 
-        const button = item.querySelector(".timeline-button");
-
-        if (!button) {
+        if (reduceMotion) {
             return;
         }
 
-        button.addEventListener("click", () => {
+        element.textContent = "";
+        let index = 0;
 
-            const isActive = item.classList.contains("active");
+        setTimeout(function typeLetter() {
 
-            // Cerrar todos
-            timelineItems.forEach(otherItem => {
+            element.textContent = text.slice(0, index + 1);
+            index++;
 
-                otherItem.classList.remove("active");
-
-                const otherButton =
-                    otherItem.querySelector(".timeline-button");
-
-                if (otherButton) {
-                    otherButton.setAttribute("aria-expanded", "false");
-                }
-            });
-
-            // Abrir el seleccionado
-            if (!isActive) {
-                item.classList.add("active");
-                button.setAttribute("aria-expanded", "true");
+            if (index < text.length) {
+                setTimeout(typeLetter, 55);
             }
-        });
+        }, 1900);
     });
 
 
     /* =========================================
-       ARTEFACTOS DEL HERO
+       ARTEFACTOS DEL HERO (NODOS 72, 83, 94, 00)
     ========================================= */
 
     const artifacts = [
         {
             year: "1972",
-            title: "Los primeros pasos",
             name: "Primeras experiencias comerciales",
-            description:
-                "El videojuego comienza a convertirse en una experiencia comercial y cultural."
+            description: "El videojuego comienza a convertirse en una experiencia comercial y cultural."
         },
         {
             year: "1983",
-            title: "La revolución doméstica",
-            name: "Los videojuegos llegan a casa",
-            description:
-                "Las consolas domésticas comienzan a formar parte de la vida cotidiana."
+            name: "La consola llega a casa",
+            description: "Los sistemas domésticos transforman la manera de jugar y crean nuevas generaciones de jugadores."
         },
         {
             year: "1994",
-            title: "La era del 3D",
             name: "Una nueva dimensión",
-            description:
-                "Las nuevas tecnologías gráficas transforman la manera de crear y experimentar videojuegos."
+            description: "Las nuevas tecnologías gráficas transforman la manera de crear y experimentar videojuegos."
         },
         {
             year: "2000",
-            title: "La expansión global",
             name: "El videojuego conectado",
-            description:
-                "Internet y las nuevas plataformas conectan a jugadores de todo el mundo."
-        },
-        {
-            year: "2020",
-            title: "Nuevas formas de jugar",
-            name: "El futuro del videojuego",
-            description:
-                "La industria continúa evolucionando con nuevas tecnologías, plataformas y comunidades."
+            description: "Internet y las nuevas plataformas conectan a jugadores de todo el mundo."
         }
     ];
 
-    let currentArtifact = 0;
-
+    const artifactInfo = document.getElementById("artifactInfo");
     const artifactYear = document.getElementById("artifactYear");
-    const artifactTitle = document.getElementById("artifactTitle");
     const artifactName = document.getElementById("artifactName");
-    const artifactDescription =
-        document.getElementById("artifactDescription");
-    const artifactCounter =
-        document.getElementById("artifactCounter");
-
-    const previousButton =
-        document.getElementById("previousArtifact");
-
-    const nextButton =
-        document.getElementById("nextArtifact");
-
-    const orbitNodes =
-        document.querySelectorAll(".orbit-node");
-
+    const artifactDescription = document.getElementById("artifactDescription");
+    const orbitNodes = document.querySelectorAll(".orbit-node");
+    let artifactTimer;
 
     function updateArtifact(index) {
 
-        if (!artifacts[index]) {
+        const artifact = artifacts[index];
+
+        if (!artifact || !artifactInfo) {
             return;
         }
 
-        const artifact = artifacts[index];
+        artifactYear.textContent = artifact.year;
+        artifactName.textContent = artifact.name;
+        artifactDescription.textContent = artifact.description;
 
-        if (artifactYear) {
-            artifactYear.textContent = artifact.year;
-        }
-
-        if (artifactTitle) {
-            artifactTitle.textContent = artifact.title;
-        }
-
-        if (artifactName) {
-            artifactName.textContent = artifact.name;
-        }
-
-        if (artifactDescription) {
-            artifactDescription.textContent =
-                artifact.description;
-        }
-
-        if (artifactCounter) {
-            artifactCounter.textContent =
-                `${String(index + 1).padStart(2, "0")} / ${String(artifacts.length).padStart(2, "0")}`;
-        }
-
-        // Activar nodo correspondiente
-        orbitNodes.forEach(node => {
-            node.classList.remove("active");
-        });
+        orbitNodes.forEach(node => node.classList.remove("active"));
 
         if (orbitNodes[index]) {
             orbitNodes[index].classList.add("active");
         }
+
+        artifactInfo.classList.add("show");
+
+        clearTimeout(artifactTimer);
+        artifactTimer = setTimeout(() => {
+            artifactInfo.classList.remove("show");
+            orbitNodes.forEach(node => node.classList.remove("active"));
+        }, 5000);
     }
 
-
-    if (previousButton) {
-
-        previousButton.addEventListener("click", () => {
-
-            currentArtifact--;
-
-            if (currentArtifact < 0) {
-                currentArtifact = artifacts.length - 1;
-            }
-
-            updateArtifact(currentArtifact);
-        });
-    }
-
-
-    if (nextButton) {
-
-        nextButton.addEventListener("click", () => {
-
-            currentArtifact++;
-
-            if (currentArtifact >= artifacts.length) {
-                currentArtifact = 0;
-            }
-
-            updateArtifact(currentArtifact);
-        });
-    }
-
-
-    // Botones de los años
     orbitNodes.forEach(node => {
 
         node.addEventListener("click", () => {
-
-            const era = Number(node.dataset.era);
-
-            if (
-                Number.isInteger(era) &&
-                era >= 0 &&
-                era < artifacts.length
-            ) {
-                currentArtifact = era;
-                updateArtifact(currentArtifact);
-            }
+            updateArtifact(Number(node.dataset.era));
         });
     });
-
-
-    // Estado inicial
-    updateArtifact(currentArtifact);
 
 
     /* =========================================
@@ -299,300 +269,432 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const counters = document.querySelectorAll("[data-count]");
 
-    const counterObserver = new IntersectionObserver(
-        entries => {
+    function animateCounter(counter) {
 
-            entries.forEach(entry => {
+        const target = Number(counter.dataset.count);
+        const prefix = counter.dataset.prefix || "";
+        const duration = 1400;
+        const start = performance.now();
 
-                if (!entry.isIntersecting) {
-                    return;
-                }
+        function frame(now) {
 
-                const counter = entry.target;
+            const progress = Math.min((now - start) / duration, 1);
+            const steps = Math.floor(progress * 20) / 20;
 
-                if (counter.dataset.animated === "true") {
-                    return;
-                }
+            counter.textContent = prefix + Math.round(target * steps);
 
-                counter.dataset.animated = "true";
-
-                const target =
-                    Number(counter.dataset.count) || 0;
-
-                const prefix =
-                    counter.dataset.prefix || "";
-
-                const symbol =
-                    counter.dataset.symbol || "";
-
-                if (symbol) {
-                    counter.textContent = symbol;
-                    return;
-                }
-
-                let start = 0;
-                const duration = 1500;
-                const startTime = performance.now();
-
-
-                function animateCounter(currentTime) {
-
-                    const elapsed = currentTime - startTime;
-                    const progress =
-                        Math.min(elapsed / duration, 1);
-
-                    // Suaviza el movimiento
-                    const eased =
-                        1 - Math.pow(1 - progress, 3);
-
-                    const value =
-                        Math.floor(eased * target);
-
-                    counter.textContent =
-                        prefix + value.toLocaleString("es-MX");
-
-                    if (progress < 1) {
-                        requestAnimationFrame(animateCounter);
-                    } else {
-                        counter.textContent =
-                            prefix +
-                            target.toLocaleString("es-MX");
-                    }
-                }
-
-                requestAnimationFrame(animateCounter);
-
-                counterObserver.unobserve(counter);
-            });
-        },
-        {
-            threshold: 0.5
+            if (progress < 1) {
+                requestAnimationFrame(frame);
+            }
         }
-    );
 
+        requestAnimationFrame(frame);
+    }
 
-    counters.forEach(counter => {
-        counterObserver.observe(counter);
-    });
+    if ("IntersectionObserver" in window && !reduceMotion) {
 
-
-    /* =========================================
-       ANIMACIONES REVEAL
-    ========================================= */
-
-    const revealElements =
-        document.querySelectorAll(".reveal");
-
-    const revealObserver = new IntersectionObserver(
-        entries => {
+        const counterObserver = new IntersectionObserver(entries => {
 
             entries.forEach(entry => {
 
                 if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: .6 });
 
+        counters.forEach(counter => counterObserver.observe(counter));
+    }
+
+
+    /* =========================================
+       APARICIÓN AL HACER SCROLL
+    ========================================= */
+
+    const revealElements = document.querySelectorAll(".reveal");
+
+    if ("IntersectionObserver" in window && !reduceMotion) {
+
+        const revealObserver = new IntersectionObserver(entries => {
+
+            entries.forEach(entry => {
+
+                if (entry.isIntersecting) {
                     entry.target.classList.add("visible");
-
                     revealObserver.unobserve(entry.target);
                 }
             });
-        },
-        {
-            threshold: 0.12
+        }, { threshold: .12 });
+
+        revealElements.forEach(element => revealObserver.observe(element));
+
+    } else {
+        revealElements.forEach(element => element.classList.add("visible"));
+    }
+
+
+    /* =========================================
+       LÍNEA DEL TIEMPO
+    ========================================= */
+
+    const timelinePoints = document.querySelectorAll(".timeline-point");
+    const timelineProgress = document.getElementById("timelineProgress");
+    const timelineYear = document.getElementById("timelineYear");
+    const timelineTitle = document.getElementById("timelineTitle");
+    const timelineText = document.getElementById("timelineText");
+    const timelinePanel = document.querySelector(".timeline-panel");
+    let timelineIndex = 0;
+    let timelineAuto;
+
+    function selectEra(index) {
+
+        const point = timelinePoints[index];
+
+        if (!point) {
+            return;
         }
-    );
+
+        timelineIndex = index;
+
+        timelinePoints.forEach((item, i) => {
+            item.classList.toggle("active", i === index);
+            item.classList.toggle("passed", i < index);
+            item.setAttribute("aria-selected", String(i === index));
+        });
+
+        if (timelineProgress) {
+            timelineProgress.style.width = `${(index / (timelinePoints.length - 1)) * 100}%`;
+        }
+
+        if (timelineYear) {
+            timelineYear.textContent = point.querySelector(".timeline-year").textContent;
+            timelineTitle.textContent = point.dataset.title;
+            timelineText.textContent = point.dataset.text;
+        }
+
+        if (timelinePanel) {
+            timelinePanel.classList.remove("swap");
+            void timelinePanel.offsetWidth;
+            timelinePanel.classList.add("swap");
+        }
+    }
+
+    function startTimelineAuto() {
+
+        clearInterval(timelineAuto);
+
+        if (reduceMotion) {
+            return;
+        }
+
+        timelineAuto = setInterval(() => {
+            selectEra((timelineIndex + 1) % timelinePoints.length);
+        }, 4500);
+    }
+
+    timelinePoints.forEach((point, index) => {
+
+        point.addEventListener("click", () => {
+            selectEra(index);
+            startTimelineAuto();
+        });
+    });
+
+    if (timelinePoints.length) {
+        selectEra(0);
+        startTimelineAuto();
+    }
 
 
-    revealElements.forEach(element => {
-        revealObserver.observe(element);
+    /* =========================================
+       PERSONAJES PIXEL ART: BIT Y MIAU
+    ========================================= */
+
+    const stageLeft = document.querySelector(".stage-left");
+    const spriteBit = document.getElementById("spriteBit");
+    const coinHud = document.getElementById("coinHud");
+    let coins = 0;
+    let jumping = false;
+
+    function bitJump() {
+
+        if (!stageLeft || jumping) {
+            return;
+        }
+
+        jumping = true;
+        stageLeft.classList.add("is-jumping");
+
+        setTimeout(() => {
+            coins++;
+            if (coinHud) {
+                coinHud.textContent = `× ${String(coins).padStart(2, "0")}`;
+                coinHud.parentElement.classList.remove("bump");
+                void coinHud.parentElement.offsetWidth;
+                coinHud.parentElement.classList.add("bump");
+            }
+        }, 300);
+
+        setTimeout(() => {
+            stageLeft.classList.remove("is-jumping");
+            jumping = false;
+        }, 900);
+    }
+
+    if (spriteBit) {
+        spriteBit.addEventListener("click", bitJump);
+    }
+
+    if (stageLeft && !reduceMotion) {
+        setInterval(bitJump, 3200);
+    }
+
+    const stageRight = document.querySelector(".stage-right");
+    const spriteMiau = document.getElementById("spriteMiau");
+    const miauBubble = document.getElementById("miauBubble");
+    const miauWords = ["¡MIAU!", "¡NYA!", "¡GG!", "¡1UP!", "PRRR..."];
+
+    function miauTalk() {
+
+        if (!stageRight || !miauBubble) {
+            return;
+        }
+
+        miauBubble.textContent = miauWords[Math.floor(Math.random() * miauWords.length)];
+        miauBubble.classList.add("show");
+        stageRight.classList.add("is-happy");
+
+        setTimeout(() => stageRight.classList.remove("is-happy"), 500);
+        setTimeout(() => miauBubble.classList.remove("show"), 1500);
+    }
+
+    if (spriteMiau) {
+        spriteMiau.addEventListener("click", miauTalk);
+    }
+
+    if (stageRight && !reduceMotion) {
+        setInterval(miauTalk, 6500);
+    }
+
+
+    /* =========================================
+       EXPLOSIÓN DE PIXELES AL HACER CLIC
+    ========================================= */
+
+    if (!reduceMotion) {
+
+        document.addEventListener("click", event => {
+
+            if (event.target.closest(".modal-overlay, input, label")) {
+                return;
+            }
+
+            for (let i = 0; i < 10; i++) {
+
+                const particle = document.createElement("span");
+                const angle = (Math.PI * 2 * i) / 10;
+                const distance = 30 + Math.random() * 30;
+
+                particle.className = "pixel-burst";
+                particle.style.left = `${event.clientX - 4}px`;
+                particle.style.top = `${event.clientY - 4}px`;
+                particle.style.setProperty("--dx", `${Math.cos(angle) * distance}px`);
+                particle.style.setProperty("--dy", `${Math.sin(angle) * distance}px`);
+                particle.style.setProperty("--c", pixelColors[i % pixelColors.length]);
+
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 650);
+            }
+        });
+    }
+
+
+    /* =========================================
+       CÓDIGO KONAMI: ↑ ↑ ↓ ↓ ← → ← → B A
+    ========================================= */
+
+    const konami = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+    let konamiIndex = 0;
+
+    document.addEventListener("keydown", event => {
+
+        const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+
+        konamiIndex = key === konami[konamiIndex] ? konamiIndex + 1 : (key === konami[0] ? 1 : 0);
+
+        if (konamiIndex === konami.length) {
+
+            konamiIndex = 0;
+            const active = document.body.classList.toggle("rainbow");
+
+            showToast(
+                active ? "★ CHEAT ACTIVADO ★" : "CHEAT DESACTIVADO",
+                active ? "MODO ARCOÍRIS DESBLOQUEADO" : "VOLVIENDO AL MODO NORMAL"
+            );
+        }
     });
 
 
     /* =========================================
-       CERRAR MENÚ AL HACER SCROLL
+       MODALES DE INICIAR SESIÓN Y REGISTRO
     ========================================= */
 
-    window.addEventListener(
-        "scroll",
-        () => {
+    function openModal(id) {
 
-            if (
-                navMenu &&
-                navMenu.classList.contains("open")
-            ) {
-                navMenu.classList.remove("open");
+        const modal = document.getElementById(id);
 
-                if (menuToggle) {
-                    menuToggle.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
+        if (!modal) {
+            return;
+        }
 
-                    menuToggle.setAttribute(
-                        "aria-label",
-                        "Abrir menú"
-                    );
-                }
+        document.querySelectorAll(".modal-overlay.open").forEach(open => closeModal(open));
+
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+
+        const firstInput = modal.querySelector("input");
+        if (firstInput) {
+            setTimeout(() => firstInput.focus(), 200);
+        }
+    }
+
+    function closeModal(modal) {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+    }
+
+    document.querySelectorAll("[data-modal-open]").forEach(button => {
+        button.addEventListener("click", () => openModal(button.dataset.modalOpen));
+    });
+
+    document.querySelectorAll("[data-switch-modal]").forEach(button => {
+        button.addEventListener("click", () => openModal(button.dataset.switchModal));
+    });
+
+    document.querySelectorAll(".modal-overlay").forEach(modal => {
+
+        modal.addEventListener("click", event => {
+            if (event.target === modal || event.target.closest("[data-modal-close]")) {
+                closeModal(modal);
             }
-        },
-        { passive: true }
-    );
+        });
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            document.querySelectorAll(".modal-overlay.open").forEach(modal => closeModal(modal));
+        }
+    });
+
+    const loginAlert = document.querySelector("#loginModal .auth-alert");
+    if (loginAlert) {
+        openModal("loginModal");
+    }
 
 
     /* =========================================
-       BOTONES DE COLECCIÓN
+       BOTONES DE COLECCIÓN, COMUNIDAD Y MARKETPLACE
     ========================================= */
 
-    const collectionButton =
-        document.querySelector(
-            '.collection-copy .button'
-        );
+    const collectionButton = document.querySelector(".collection-copy .button");
 
     if (collectionButton) {
-
         collectionButton.addEventListener("click", event => {
-
             event.preventDefault();
-
-            alert(
-                "La función de creación de colecciones estará disponible próximamente."
-            );
+            showToast("PRÓXIMAMENTE", "LA CREACIÓN DE COLECCIONES ESTARÁ DISPONIBLE PRONTO");
         });
     }
 
-
-    /* =========================================
-       BOTÓN "ÚNETE AL CAMINO"
-    ========================================= */
-
-    const communityButton =
-        document.querySelector(
-            ".community-action .button"
-        );
+    const communityButton = document.querySelector(".community-action .button");
 
     if (communityButton) {
-
         communityButton.addEventListener("click", event => {
-
             event.preventDefault();
-
-            alert(
-                "¡Gracias por tu interés en formar parte de Our Path!"
-            );
+            showToast("¡GRACIAS, PLAYER!", "PRONTO PODRÁS FORMAR PARTE DE OUR PATH");
         });
     }
 
-
-    /* =========================================
-       BOTONES DEL MARKETPLACE
-    ========================================= */
-
-    const productLinks =
-        document.querySelectorAll(
-            ".product-info a"
-        );
-
-    productLinks.forEach(link => {
+    document.querySelectorAll(".product-info a").forEach(link => {
 
         link.addEventListener("click", event => {
 
             event.preventDefault();
 
-            const productCard =
-                link.closest(".product-card");
+            const productCard = link.closest(".product-card");
+            const productName = productCard?.querySelector("h3")?.textContent || "este artículo";
 
-            const productName =
-                productCard?.querySelector("h3")?.textContent ||
-                "este artículo";
-
-            alert(
-                `Has seleccionado: ${productName}\n\nLa información detallada del artículo estará disponible próximamente.`
-            );
+            showToast(productName.toUpperCase(), "LA FICHA DEL ARTÍCULO ESTARÁ DISPONIBLE PRÓXIMAMENTE");
         });
     });
-
-
-    /* =========================================
-       EFECTO DEL HEADER AL HACER SCROLL
-    ========================================= */
-
-    const header =
-        document.querySelector(".site-header");
-
-    if (header) {
-
-        window.addEventListener(
-            "scroll",
-            () => {
-
-                if (window.scrollY > 50) {
-                    header.classList.add("scrolled");
-                } else {
-                    header.classList.remove("scrolled");
-                }
-            },
-            { passive: true }
-        );
-    }
 
 
     /* =========================================
        PREVENIR ERRORES POR IMÁGENES
     ========================================= */
 
-    const images =
-        document.querySelectorAll("img");
-
-    images.forEach(image => {
+    document.querySelectorAll("img").forEach(image => {
 
         image.addEventListener("error", () => {
-
-            image.style.opacity = "0.4";
+            image.classList.add("img-error");
             image.alt = "Imagen no disponible";
         });
     });
 
 
-    console.log(
-        "Our Path | Sistema JavaScript cargado correctamente."
-    );
+    /* =========================================
+       MODALES DE LA PÁGINA DE USUARIOS
+    ========================================= */
 
-});
-  // Mostrar / ocultar clave
-  document.getElementById('toggleEditPass').addEventListener('click', function () {
-    const input = document.getElementById('editClave');
-    const icon = this.querySelector('i');
-    const show = input.type === 'password';
-    input.type = show ? 'text' : 'password';
-    icon.classList.toggle('fa-eye', !show);
-    icon.classList.toggle('fa-eye-slash', show);
-  });
+    const toggleEditPass = document.getElementById("toggleEditPass");
 
-  // Rellenar el modal al abrirlo desde un botón con data-*
-  // Ejemplo de botón:
-  // <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
-  //   data-id="5" data-nombre="Ana" data-correo="ana@mail.com" data-perfil="A" data-imagen="ana.jpg">Editar</button>
-  document.getElementById('editUserModal').addEventListener('show.bs.modal', function (e) {
-    const b = e.relatedTarget;
-    if (!b || !b.dataset.id) return;
+    if (toggleEditPass) {
 
-    document.getElementById('editId').value = b.dataset.id;
-    document.getElementById('editIdLabel').textContent = b.dataset.id;
-    document.getElementById('editNombre').value = b.dataset.nombre;
-    document.getElementById('editCorreo').value = b.dataset.correo;
-    document.getElementById('editPerfil').value = b.dataset.perfil;
-    document.getElementById('editImagenActual').value = b.dataset.imagen;
-    document.getElementById('editAvatar').src = 'img/usuarios/' + b.dataset.imagen;
-    document.getElementById('editClave').value = '';
-  });
-
-  
-  // Ejemplo de botón en la tabla de usuarios:
-  // <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-id="5">Eliminar</button>
-  document.getElementById('deleteUserModal').addEventListener('show.bs.modal', function (e) {
-    const b = e.relatedTarget;
-    if (b && b.dataset.id) {
-      document.getElementById('deleteId').value = b.dataset.id;
+        toggleEditPass.addEventListener("click", function () {
+            const input = document.getElementById("editClave");
+            const icon = this.querySelector("i");
+            const show = input.type === "password";
+            input.type = show ? "text" : "password";
+            icon.classList.toggle("fa-eye", !show);
+            icon.classList.toggle("fa-eye-slash", show);
+        });
     }
-  });
+
+    const editUserModal = document.getElementById("editUserModal");
+
+    if (editUserModal) {
+
+        editUserModal.addEventListener("show.bs.modal", function (e) {
+            const b = e.relatedTarget;
+            if (!b || !b.dataset.id) return;
+
+            document.getElementById("editId").value = b.dataset.id;
+            document.getElementById("editIdLabel").textContent = b.dataset.id;
+            document.getElementById("editNombre").value = b.dataset.nombre;
+            document.getElementById("editCorreo").value = b.dataset.correo;
+            document.getElementById("editPerfil").value = b.dataset.perfil;
+            document.getElementById("editImagenActual").value = b.dataset.imagen;
+            document.getElementById("editAvatar").src = "img/usuarios/" + b.dataset.imagen;
+            document.getElementById("editClave").value = "";
+        });
+    }
+
+    const deleteUserModal = document.getElementById("deleteUserModal");
+
+    if (deleteUserModal) {
+
+        deleteUserModal.addEventListener("show.bs.modal", function (e) {
+            const b = e.relatedTarget;
+            if (b && b.dataset.id) {
+                document.getElementById("deleteId").value = b.dataset.id;
+            }
+        });
+    }
 
 
+    console.log(
+        "%cOur Path%c | Prueba el código Konami: ↑ ↑ ↓ ↓ ← → ← → B A",
+        "color:#8b3dff;font-weight:bold",
+        "color:#39ff88"
+    );
+});

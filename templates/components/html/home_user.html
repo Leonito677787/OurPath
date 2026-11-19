@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends'layout.html' %}
 {% block titulo %} OurPath {% endblock %}
 {% block contenido  %}
@@ -20,15 +21,26 @@
 <!-- HERO -->
         <section class="hero section" aria-labelledby="hero-title">
             <div class="hero-grid">
+=======
+{% extends 'layout.html' %}
+{% block titulo %}Our Path | Explora la historia de los videojuegos{% endblock %}
+{% block contenido %}
+        <!-- HERO -->
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="pixel-sky" data-pixels="46" aria-hidden="true"></div>
+            <div class="hero-floor" aria-hidden="true"></div>
+
+            <div class="hero-grid section">
+>>>>>>> c9d669a2459bd9a21ff76762b2391ed6c47ecd45
                 <div class="hero-content reveal">
                     <p class="eyebrow">
                         <span class="status-dot" aria-hidden="true"></span>
-                        EL CAMINO DE LOS VIDEOJUEGOS
+                        <span class="typewriter" data-type="EL CAMINO DE LOS VIDEOJUEGOS">EL CAMINO DE LOS VIDEOJUEGOS</span>
                     </p>
 
                     <h1 id="hero-title">
-                        Preservamos el pasado.
-                        <span>Exploramos el futuro.</span>
+                        <span class="title-line glitch" data-text="Preservamos el pasado.">Preservamos el pasado.</span>
+                        <span class="title-line title-accent glitch" data-text="Exploramos el futuro.">Exploramos el futuro.</span>
                     </h1>
 
                     <p class="hero-description">
@@ -58,50 +70,41 @@
                 </div>
 
                 <div class="hero-visual reveal">
-                    <div class="orbit-system" aria-label="Artefacto histórico interactivo">
+                    <div class="orbit-system" id="orbitSystem" aria-label="Artefacto histórico interactivo">
                         <div class="orbit orbit-one"></div>
                         <div class="orbit orbit-two"></div>
-                        <div class="orbit orbit-three"></div>
 
-                        <button class="orbit-node node-one" type="button" data-era="0"
-                            aria-label="Mostrar 1972">
+                        <img class="artifact artifact-portatil" src="{{ url_for('static', filename='img/hero/portatil.svg') }}" alt="Consola portátil pixel art">
+                        <img class="artifact artifact-consola" src="{{ url_for('static', filename='img/hero/consola.svg') }}" alt="Consola de sobremesa pixel art">
+                        <img class="artifact artifact-pad-left" src="{{ url_for('static', filename='img/hero/control-moderno.svg') }}" alt="Control moderno pixel art">
+                        <img class="artifact artifact-pad-right" src="{{ url_for('static', filename='img/hero/control-moderno.svg') }}" alt="">
+
+                        <div class="orbit-ring" aria-hidden="true">
+                            <span class="orbit-comet"></span>
+                        </div>
+
+                        <div class="artifact-main">
+                            <img class="artifact artifact-control" src="{{ url_for('static', filename='img/hero/control.svg') }}" alt="Control clásico pixel art">
+                        </div>
+
+                        <button class="orbit-node node-one" type="button" data-era="0" aria-label="Mostrar 1972">
                             <span>72</span>
                         </button>
 
-                        <button class="orbit-node node-two" type="button" data-era="1"
-                            aria-label="Mostrar 1983">
+                        <button class="orbit-node node-two" type="button" data-era="1" aria-label="Mostrar 1983">
                             <span>83</span>
                         </button>
 
-                        <button class="orbit-node node-three" type="button" data-era="2"
-                            aria-label="Mostrar 1994">
+                        <button class="orbit-node node-three" type="button" data-era="2" aria-label="Mostrar 1994">
                             <span>94</span>
                         </button>
 
-                        <button class="orbit-node node-four" type="button" data-era="3"
-                            aria-label="Mostrar 2000">
+                        <button class="orbit-node node-four" type="button" data-era="3" aria-label="Mostrar 2000">
                             <span>00</span>
                         </button>
 
-                        <div class="console-orbit" id="consoleOrbit">
-                            <div class="console-screen">
-                                <span class="screen-line"></span>
-                                <span class="screen-line short"></span>
-                                <strong id="artifactYear">1972</strong>
-                                <small id="artifactTitle">Los primeros pasos</small>
-                            </div>
-
-                            <div class="console-body">
-                                <span class="console-slot"></span>
-                                <span class="console-button button-a"></span>
-                                <span class="console-button button-b"></span>
-                            </div>
-
-                            <span class="console-port"></span>
-                        </div>
-
                         <div class="artifact-info" id="artifactInfo" aria-live="polite">
-                            <span class="artifact-label">ARCHIVE DATA</span>
+                            <span class="artifact-label">ARCHIVE DATA // <b id="artifactYear">1972</b></span>
                             <strong id="artifactName">Primeras experiencias comerciales</strong>
                             <p id="artifactDescription">
                                 El videojuego comienza a convertirse en una experiencia
@@ -109,146 +112,140 @@
                             </p>
                         </div>
                     </div>
-
-                    <div class="rotation-controls">
-                        <button type="button" id="previousArtifact" aria-label="Artefacto anterior">
-                            ← Anterior
-                        </button>
-                        <span id="artifactCounter">01 / 05</span>
-                        <button type="button" id="nextArtifact" aria-label="Siguiente artefacto">
-                            Siguiente →
-                        </button>
-                    </div>
                 </div>
-            </div>
-
-            <div class="hero-scroll" aria-hidden="true">
-                <span></span>
-                SCROLL TO EXPLORE
             </div>
         </section>
 
         <!-- STATS -->
-        <section class="stats section" aria-label="Estadísticas de Our Path">
-            <article class="stat-card reveal">
-                <strong data-count="50" data-prefix="+">0</strong>
-                <span>años de historia</span>
-            </article>
+        <section class="stats" aria-label="Estadísticas de Our Path">
+            <div class="stats-inner section">
+                <article class="stat-card reveal">
+                    <img class="stat-icon" src="{{ url_for('static', filename='img/icons/trofeo.svg') }}" alt="">
+                    <div>
+                        <strong><span data-count="50" data-prefix="+">+50</span> años</strong>
+                        <small>de historia</small>
+                    </div>
+                </article>
 
-            <article class="stat-card reveal">
-                <strong data-count="1000" data-prefix="+">0</strong>
-                <span>elementos archivados</span>
-            </article>
+                <article class="stat-card reveal">
+                    <img class="stat-icon" src="{{ url_for('static', filename='img/icons/control.svg') }}" alt="">
+                    <div>
+                        <strong><span data-count="1000" data-prefix="+">+1000</span></strong>
+                        <small>elementos</small>
+                    </div>
+                </article>
 
-            <article class="stat-card reveal">
-                <strong data-count="500" data-prefix="+">0</strong>
-                <span>consolas registradas</span>
-            </article>
+                <article class="stat-card reveal">
+                    <img class="stat-icon" src="{{ url_for('static', filename='img/icons/consola.svg') }}" alt="">
+                    <div>
+                        <strong><span data-count="500" data-prefix="+">+500</span></strong>
+                        <small>consolas</small>
+                    </div>
+                </article>
 
-            <article class="stat-card reveal">
-                <strong data-count="0" data-symbol="∞">0</strong>
-                <span>historias por descubrir</span>
-            </article>
+                <article class="stat-card reveal">
+                    <img class="stat-icon stat-icon-wide" src="{{ url_for('static', filename='img/icons/infinito.svg') }}" alt="">
+                    <div>
+                        <strong class="stat-infinite"><span class="infinite-symbol">∞</span> historias</strong>
+                    </div>
+                </article>
+            </div>
         </section>
 
         <!-- HISTORY / TIMELINE -->
-        <section class="history section" id="historia" aria-labelledby="history-title">
-            <div class="section-heading reveal">
-                <div>
-                    <p class="eyebrow">01 / OUR PATH</p>
-                    <h2 id="history-title">El camino que construyó nuestra historia</h2>
-                </div>
+        <section class="history" id="historia" aria-labelledby="history-title">
+            <div class="pixel-sky" data-pixels="24" aria-hidden="true"></div>
 
-                <p>
-                    Our Path organiza décadas de innovación en una trayectoria
-                    donde cada generación dejó una huella.
-                </p>
+            <div class="pixel-stage stage-left">
+                <span class="coin-hud" aria-hidden="true">
+                    <img src="{{ url_for('static', filename='img/sprites/moneda.svg') }}" alt="">
+                    <b id="coinHud">× 00</b>
+                </span>
+                <img class="op-block" id="opBlock" src="{{ url_for('static', filename='img/sprites/bloque-op.svg') }}" alt="">
+                <span class="coin-spawn" id="coinSpawn" aria-hidden="true"></span>
+                <button class="sprite sprite-bit" id="spriteBit" type="button" aria-label="Hacer saltar a Bit, el robot de Our Path">
+                    <img src="{{ url_for('static', filename='img/sprites/bit.svg') }}" alt="">
+                </button>
+                <span class="sprite-shadow" aria-hidden="true"></span>
             </div>
 
-            <div class="timeline" id="timeline">
-                <article class="timeline-item active reveal">
-                    <button type="button" class="timeline-button" aria-expanded="true">
+            <div class="pixel-stage stage-right">
+                <span class="speed-lines" aria-hidden="true"></span>
+                <span class="speech-bubble" id="miauBubble" aria-hidden="true">¡MIAU!</span>
+                <button class="sprite sprite-miau" id="spriteMiau" type="button" aria-label="Acariciar a Miau, la gata de Our Path">
+                    <img src="{{ url_for('static', filename='img/sprites/miau.svg') }}" alt="">
+                </button>
+                <span class="dust dust-one" aria-hidden="true"></span>
+                <span class="dust dust-two" aria-hidden="true"></span>
+                <span class="dust dust-three" aria-hidden="true"></span>
+                <span class="sprite-shadow" aria-hidden="true"></span>
+            </div>
+
+            <div class="section">
+                <div class="timeline-heading reveal">
+                    <p class="eyebrow eyebrow-square">
+                        <span class="pixel-square" aria-hidden="true"></span>
+                        LÍNEA DEL TIEMPO
+                    </p>
+                    <h2 id="history-title">Una industria en constante evolución</h2>
+                </div>
+
+                <div class="timeline reveal" id="timeline" role="tablist" aria-label="Décadas de los videojuegos">
+                    <div class="timeline-track" aria-hidden="true">
+                        <span class="timeline-progress" id="timelineProgress"></span>
+                    </div>
+
+                    <button class="timeline-point active" type="button" role="tab" aria-selected="true"
+                        data-title="Los comienzos"
+                        data-text="Las primeras experiencias electrónicas abrieron el camino para convertir el juego digital en una nueva forma de entretenimiento.">
+                        <span class="timeline-dot"></span>
                         <span class="timeline-year">1970s</span>
-                        <span class="timeline-title">Los comienzos</span>
-                        <span class="timeline-icon">+</span>
                     </button>
-                    <div class="timeline-content">
-                        <p>
-                            Las primeras experiencias electrónicas abrieron el camino
-                            para convertir el juego digital en una nueva forma de entretenimiento.
-                        </p>
-                    </div>
-                </article>
 
-                <article class="timeline-item reveal">
-                    <button type="button" class="timeline-button" aria-expanded="false">
+                    <button class="timeline-point" type="button" role="tab" aria-selected="false"
+                        data-title="La revolución doméstica"
+                        data-text="Las consolas llegan a los hogares y los videojuegos comienzan a construir una identidad cultural propia.">
+                        <span class="timeline-dot"></span>
                         <span class="timeline-year">1980s</span>
-                        <span class="timeline-title">La revolución doméstica</span>
-                        <span class="timeline-icon">+</span>
                     </button>
-                    <div class="timeline-content">
-                        <p>
-                            Las consolas llegan a los hogares y los videojuegos comienzan
-                            a construir una identidad cultural propia.
-                        </p>
-                    </div>
-                </article>
 
-                <article class="timeline-item reveal">
-                    <button type="button" class="timeline-button" aria-expanded="false">
+                    <button class="timeline-point" type="button" role="tab" aria-selected="false"
+                        data-title="La era del 3D"
+                        data-text="Nuevas tecnologías gráficas transforman la manera de diseñar, experimentar y contar historias dentro de los videojuegos.">
+                        <span class="timeline-dot"></span>
                         <span class="timeline-year">1990s</span>
-                        <span class="timeline-title">La era del 3D</span>
-                        <span class="timeline-icon">+</span>
                     </button>
-                    <div class="timeline-content">
-                        <p>
-                            Nuevas tecnologías gráficas transforman la manera de diseñar,
-                            experimentar y contar historias dentro de los videojuegos.
-                        </p>
-                    </div>
-                </article>
 
-                <article class="timeline-item reveal">
-                    <button type="button" class="timeline-button" aria-expanded="false">
+                    <button class="timeline-point" type="button" role="tab" aria-selected="false"
+                        data-title="La expansión global"
+                        data-text="Internet, nuevas plataformas y comunidades digitales conectan a jugadores de todo el mundo.">
+                        <span class="timeline-dot"></span>
                         <span class="timeline-year">2000s</span>
-                        <span class="timeline-title">La expansión global</span>
-                        <span class="timeline-icon">+</span>
                     </button>
-                    <div class="timeline-content">
-                        <p>
-                            Internet, nuevas plataformas y comunidades digitales conectan
-                            a jugadores de todo el mundo.
-                        </p>
-                    </div>
-                </article>
 
-                <article class="timeline-item reveal">
-                    <button type="button" class="timeline-button" aria-expanded="false">
+                    <button class="timeline-point" type="button" role="tab" aria-selected="false"
+                        data-title="La era digital"
+                        data-text="Los ecosistemas digitales cambian la distribución, el acceso y la manera de formar comunidades alrededor de los videojuegos.">
+                        <span class="timeline-dot"></span>
                         <span class="timeline-year">2010s</span>
-                        <span class="timeline-title">La era digital</span>
-                        <span class="timeline-icon">+</span>
                     </button>
-                    <div class="timeline-content">
-                        <p>
-                            Los ecosistemas digitales cambian la distribución, el acceso
-                            y la manera de formar comunidades alrededor de los videojuegos.
-                        </p>
-                    </div>
-                </article>
 
-                <article class="timeline-item reveal">
-                    <button type="button" class="timeline-button" aria-expanded="false">
+                    <button class="timeline-point" type="button" role="tab" aria-selected="false"
+                        data-title="Nuevas formas de jugar"
+                        data-text="La industria continúa evolucionando entre experiencias híbridas, nuevas tecnologías y una creciente cultura de preservación.">
+                        <span class="timeline-dot"></span>
                         <span class="timeline-year">2020s</span>
-                        <span class="timeline-title">Nuevas formas de jugar</span>
-                        <span class="timeline-icon">+</span>
                     </button>
-                    <div class="timeline-content">
-                        <p>
-                            La industria continúa evolucionando entre experiencias híbridas,
-                            nuevas tecnologías y una creciente cultura de preservación.
-                        </p>
-                    </div>
-                </article>
+                </div>
+
+                <div class="timeline-panel reveal" aria-live="polite">
+                    <span class="timeline-panel-year" id="timelineYear">1970s</span>
+                    <h3 id="timelineTitle">Los comienzos</h3>
+                    <p id="timelineText">
+                        Las primeras experiencias electrónicas abrieron el camino
+                        para convertir el juego digital en una nueva forma de entretenimiento.
+                    </p>
+                </div>
             </div>
         </section>
 
